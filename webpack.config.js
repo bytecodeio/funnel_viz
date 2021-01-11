@@ -2,7 +2,7 @@ let path = require('path');
 
 
 let webpackConfig = {
-    mode: 'production',
+    mode: 'development',
     entry: {
         funnel: './src/visualizations/funnel.js'
     },
