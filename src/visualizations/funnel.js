@@ -56,7 +56,7 @@ export const viz = looker.plugins.visualizations.add({
       section: "Styling",
       label: "Stroke width",
       type: "number",
-      default: "3"
+      default: 3
     },
     fill: {
       section: "Styling",
@@ -246,7 +246,7 @@ export const viz = looker.plugins.visualizations.add({
     // vizDiv.style.marginTop = '20px'
 
     vizDiv.innerHTML = `<svg class="funnel" width="${element.offsetWidth}" height="${element.offsetHeight - 60}" stroke-width="${config.strokeWidth}"
-      stroke="${config.stroke}"  fill="${config.fill}" ></svg>`
+      stroke="${config.stroke[0]}"  fill="${config.fill[0]}" ></svg>`
 
     element.appendChild(vizDiv)
 
