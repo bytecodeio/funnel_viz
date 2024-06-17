@@ -4,7 +4,8 @@ let path = require('path');
 let webpackConfig = {
     mode: 'development',
     entry: {
-        funnel: './src/visualizations/funnel.js'
+        funnel_icons: './src/visualizations/funnel_icons.js',
+        funnel_smooth: './src/visualizations/funnel_smooth.js'
     },
     output: {
         filename: '[name].js',
@@ -30,7 +31,7 @@ let webpackConfig = {
         allowedHosts: ['.looker.com'],
         compress: true,
         port: 3443,
-        https: true
+        server: 'https'
     },
     devtool: 'eval'
 };
