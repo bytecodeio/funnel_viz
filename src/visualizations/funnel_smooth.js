@@ -1,5 +1,6 @@
 import funnel from "@fnando/sparkline";
 import { handleErrors } from '../common/utils';
+import FunnelGraph from 'funnel-graph-js';
 
 function findClosest(target, tagName) {
 
@@ -126,6 +127,21 @@ export const viz = looker.plugins.visualizations.add({
         default: measure.label
       }
     })
+// Example call for funnel-graph-js library:
+// var graph = new FunnelGraph({
+//     container: '.funnel',
+//     gradientDirection: 'horizontal',
+//     data: {...},
+//     displayPercent: true,
+//     direction: 'horizontal'
+// });
+// graph.draw();
+// Example data for funnel-graph-js library:
+// data: {
+//     labels: ['Impressions', 'Add To Cart', 'Buy'],
+//     colors: ['orange', 'red'],
+//     values: [12000, 5700, 360]
+// },
 
     this.trigger('registerOptions', options) // register options with parent page to update visConfig
 

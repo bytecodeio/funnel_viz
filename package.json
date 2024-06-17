@@ -17,6 +17,7 @@
 	},
 	"dependencies": {
 		"@fnando/sparkline": "^0.3.10",
-		"@types/node": "^11.13.9"
+		"@types/node": "^11.13.9",
+		"funnel-graph-js": "^1.4.2"
 	}
 }
