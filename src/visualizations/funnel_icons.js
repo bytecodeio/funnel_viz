@@ -109,14 +109,8 @@ export const viz = looker.plugins.visualizations.add({
     });
 
     let measures = queryResponse.fields.measure_like
-    // .map((field) => {
-    //   let key = field.label
-    //   let value = field.name
-    //   return { [key]: value }
-    // })
     let options = this.options;
 
-    // reset the viz on re-rendering.
     measures.forEach((measure) => {
       options[measure.name] =
       {

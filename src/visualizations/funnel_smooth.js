@@ -11,56 +11,130 @@ function loadFunnelGraphStyles() {
   ];
 
   cssUrls.forEach(url => {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.type = 'text/css';
-    link.href = url;
-    document.head.appendChild(link);
+    if (!document.querySelector(`link[href="${url}"]`)) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = url;
+      document.head.appendChild(link);
+    }
   });
 }
 
-function injectStyles(config) {
-  const styleId = 'my-visualization-styles'; // A unique identifier for your styles
-  let styleElement = document.getElementById(styleId);
-
-  if (!styleElement) {
-    styleElement = document.createElement('style');
-    styleElement.id = styleId;
-    document.head.appendChild(styleElement);
-  }
-
-  styleElement.innerHTML = `
-    .funnel-container {
-      background-color: ${config.background} !important;
-    }
-  `;
-}
 
 export const viz = looker.plugins.visualizations.add({
   options: {
     background: {
-      section: "Styling",
+      section: "Colors",
       type: "array",
       label: "Background Color",
       display: "color",
       default: ["#353b49"]
     },
     startColor: {
-      section: "Styling",
+      section: "Colors",
       type: "array",
       label: "Starting Color",
       display: "color",
       default: ["#22ff22"]
     },
     endColor: {
-      section: "Styling",
+      section: "Colors",
       type: "array",
       label: "Ending Color",
       display: "color",
       default: ["#ff2222"]
     },
+    valueColor: {
+      section: "Font",
+      type: "array",
+      label: "Value Color",
+      display: "color",
+      default: ["#ffffff"],
+      order: 1
+    },
+    labelColor: {
+      section: "Font",
+      type: "array",
+      label: "Label Color",
+      display: "color",
+      default: ["#ffffff"], 
+      order: 11
+    },
+    percentColor: {
+      section: "Font",
+      type: "array",
+      label: "Percent Color",
+      display: "color",
+      default: ["#ffffff"], 
+      order: 21
+    },
+    percentDiffColor: {
+      section: "Font",
+      type: "array",
+      label: "Percent Diff Color",
+      display: "color",
+      default: ["#ffffff"], 
+      order: 31
+    },
+    valueFontSize: {
+      section: "Font",
+      type: "number",
+      label: "value Font Size",
+      default: 18,
+      order: 2
+    },
+    labelFontSize: {
+      section: "Font",
+      type: "number",
+      label: "value Font Size",
+      default: 14,
+      order: 12
+    },
+    percentFontSize: {
+      section: "Font",
+      type: "number",
+      label: "Percent Font Size",
+      default: 14,
+      order: 22
+    },
+    percentDiffFontSize: {
+      section: "Font",
+      type: "number",
+      label: "Percent Diff Font Size",
+      default: 14,
+      order: 32
+    },
+    valueFontWeight: {
+      section: "Font",
+      type: "number",
+      label: "value Font Weight",
+      default: 800,
+      order: 3
+    },
+    labelFontWeight: {
+      section: "Font",
+      type: "number",
+      label: "value Font Weight",
+      default: 400,
+      order: 13
+    },
+    percentFontWeight: {
+      section: "Font",
+      type: "number",
+      label: "Percent Font Weight",
+      default: 400,
+      order: 23
+    },
+    percentDiffFontWeight: {
+      section: "Font",
+      type: "number",
+      label: "Percent Diff Font Weight",
+      default: 400,
+      order: 33
+    },
       direction: {
-        section: "Styling",
+        section: "Colors",
         type: "string",
         label: "Direction",
         display: "select",
@@ -78,11 +152,35 @@ export const viz = looker.plugins.visualizations.add({
 
     element.innerHTML = `
     <style>
-    body {
-      background-color: ${config.background};
-    }
+      body {
+        background-color: ${config.background};
+      }
+      .svg-funnel-js__container {
+        margin-top: 70px;
+      }
+      .label__value { 
+        color: ${config.valueColor} !important;
+        font-size: ${config.valueFontSize}px !important;
+        font-weight: ${config.valueFontWeight} !important;
+      }
+      .label__title {
+        color: ${config.labelColor} !important;
+        font-size: ${config.labelFontSize}px !important;
+        font-weight: ${config.labelFontWeight} !important;
+      }
+      .label__percentage {
+        color: ${config.percentColor} !important;
+        font-size: ${config.percentFontSize}px !important;
+        font-weight: ${config.percentFontWeight} !important
+      }
+      .label__delta-percentage {
+        color: ${config.percentDiffColor} !important;
+        font-size: ${config.percentDiffFontSize}px !important;
+        font-weight: ${config.percentDiffFontWeight} !important
+      }
     </style>`
     // Call this function at an appropriate time (e.g., when initializing your app or component)
+    
     loadFunnelGraphStyles();
 
     // Handle the field counts
@@ -114,10 +212,8 @@ export const viz = looker.plugins.visualizations.add({
 element.classList.add('funnel-container');
 
 const labels = measures.map((measure) => {
-  console.log(measure)
   return config[measure.name];
 })
-console.log('labels:',labels)
 let subLabels = [];
 let values = [];
 const hasADimension = queryResponse.fields.dimension_like.length > 0;
@@ -160,9 +256,9 @@ graph = new FunnelGraph({
     displayPercent: true,
     direction: config.direction,
     gradientDirection: config.direction,
-});
+    height: element.offsetHeight - 70
+  });
 }
-console.log(graph)
 graph.draw();
 
     // element.innerHTML = "Hello World"
