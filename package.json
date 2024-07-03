@@ -18,6 +18,6 @@
 	"dependencies": {
 		"@fnando/sparkline": "^0.3.10",
 		"@types/node": "^11.13.9",
-		"funnel-graph-js": "file://home/colin/funnel-graph-js"
+		"funnel-graph-js-2": "^1.4.3"
 	}
 }

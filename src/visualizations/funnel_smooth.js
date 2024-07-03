@@ -1,5 +1,5 @@
 import { handleErrors } from '../common/utils';
-import FunnelGraph from 'funnel-graph-js';
+import FunnelGraph from 'funnel-graph-js-2';
 import './css/main.css';
 import './css/themes.css'
 
@@ -31,6 +31,13 @@ export const viz = looker.plugins.visualizations.add({
       display: "color",
       default: ["#353b49"]
     },
+    colorArray: {
+      section: "Colors",
+      type: "array",
+      label: "Colors for Multiple Series",
+      display: "colors",
+      default: []
+    },
     startColor: {
       section: "Colors",
       type: "array",
@@ -58,7 +65,7 @@ export const viz = looker.plugins.visualizations.add({
       type: "array",
       label: "Label Color",
       display: "color",
-      default: ["#ffffff"], 
+      default: ["#ffffff"],
       order: 11
     },
     percentColor: {
@@ -66,7 +73,7 @@ export const viz = looker.plugins.visualizations.add({
       type: "array",
       label: "Percent Color",
       display: "color",
-      default: ["#ffffff"], 
+      default: ["#ffffff"],
       order: 21
     },
     percentDiffColor: {
@@ -74,7 +81,7 @@ export const viz = looker.plugins.visualizations.add({
       type: "array",
       label: "Percent Diff Color",
       display: "color",
-      default: ["#ffffff"], 
+      default: ["#ffffff"],
       order: 31
     },
     valueFontSize: {
@@ -133,17 +140,17 @@ export const viz = looker.plugins.visualizations.add({
       default: 400,
       order: 33
     },
-      direction: {
-        section: "Colors",
-        type: "string",
-        label: "Direction",
-        display: "select",
-        values: [
-          {"Vertical": "vertical"},
-          {"Horizontal": "horizontal"}
-        ],
-        default: "horizontal"
-      },
+    direction: {
+      section: "Colors",
+      type: "string",
+      label: "Direction",
+      display: "select",
+      values: [
+        { "Vertical": "vertical" },
+        { "Horizontal": "horizontal" }
+      ],
+      default: "horizontal"
+    },
   },
   create: function (element, config) {
     element.innerHTML = `<svg class="funnel" width="${element.offsetWidth}" height="${element.offsetHeight}" stroke-width="3"></svg>`;
@@ -180,7 +187,7 @@ export const viz = looker.plugins.visualizations.add({
       }
     </style>`
     // Call this function at an appropriate time (e.g., when initializing your app or component)
-    
+
     loadFunnelGraphStyles();
 
     // Handle the field counts
@@ -205,61 +212,88 @@ export const viz = looker.plugins.visualizations.add({
         default: measure.label
       }
     })
-    
+
     this.trigger('registerOptions', options) // register options with parent page to update visConfig
 
-// Example call for funnel-graph-js library:
-element.classList.add('funnel-container');
+    // Example call for funnel-graph-js library:
+    element.classList.add('funnel-container');
 
-const labels = measures.map((measure) => {
-  return config[measure.name];
-})
-let subLabels = [];
-let values = [];
-const hasADimension = queryResponse.fields.dimension_like.length > 0;
-if (hasADimension) {
-  const dimension = queryResponse.fields.dimension_like[0];
-  subLabels = data.map((row) => row[dimension.name].value);
-  values = data.map((row) => {
-    return measures.map((measure) => {
-      return row[measure.name].value;
-  })
-  })
-} else {
-  values = measures.map((measure) => {
-      return data[0][measure.name].value;
-  })
-  }
 
-  let graph;
-if (hasADimension) {
-graph = new FunnelGraph({
-    container: '.funnel-container',
-    data: {
-      subLabels: subLabels,
-      labels: labels,
-      colors: ['orange','blue'],
-      values: values
-  },
-    displayPercent: true,
-    direction: config.direction,
-    gradientDirection: config.direction,
-});
-} else {
-  graph = new FunnelGraph({
-    container: '.funnel-container',
-    data: {
-      labels: labels,
-      colors: [config.startColor, config.endColor],
-      values: values
-  },
-    displayPercent: true,
-    direction: config.direction,
-    gradientDirection: config.direction,
-    height: element.offsetHeight - 70
-  });
-}
-graph.draw();
+    const labels = measures.map((measure) => {
+      return config[measure.name];
+    })
+    let subLabels = [];
+    let values = [];
+    const hasADimension = queryResponse.fields.dimension_like.length > 0;
+    let colorArrayForMultipleSeries = [];
+    if (hasADimension) {
+      if (config?.colorArray?.length === 0) {
+        errors.push(
+          'If you have a dimension, you must provide a Colors for Multiple Series palette option.'
+        )
+      }
+      const dimension = queryResponse.fields.dimension_like[0];
+      const dimensionValuesCount = data.map((row) => row[dimension.name].value).length;
+
+      subLabels = data.map((row) => row[dimension.name].value);
+      values = data.map((row) => {
+        return measures.map((measure) => {
+          return row[measure.name].value;
+        })
+      })
+      console.log(values)
+      // Begin color array handling
+      // Assuming config.colorArray has exactly 12 entries
+      const colorPairs = [];
+      // First 6 pairs in direct order
+      for (let i = 0; i < 6; i++) {
+        colorPairs.push([config.colorArray[i], config.colorArray[i + 6]]);
+      }
+      // Next 6 pairs in reversed order to ensure distinctiveness
+      for (let i = 0; i < 6; i++) {
+        colorPairs.push([config.colorArray[11 - i], config.colorArray[5 - i]]);
+      }
+      // Ensure there's a color pair for each dimension value
+      for (let i = 0; i < dimensionValuesCount; i++) {
+        // Use modulo operator to loop through colorPairs array
+        colorArrayForMultipleSeries.push(colorPairs[i % colorPairs.length]);
+      }
+    } else {
+      values = measures.map((measure) => {
+        return data[0][measure.name].value;
+      })
+    }
+
+    let graph;
+    if (hasADimension) {
+      graph = new FunnelGraph({
+        container: '.funnel-container',
+        data: {
+          subLabels: subLabels,
+          labels: labels,
+          colors: colorArrayForMultipleSeries,
+          values: values
+        },
+        displayPercent: true,
+        direction: config.direction,
+        gradientDirection: config.direction,
+        height: element.offsetHeight - 70
+      });
+    } else {
+      graph = new FunnelGraph({
+        container: '.funnel-container',
+        data: {
+          labels: labels,
+          colors: [config.startColor, config.endColor],
+          values: values
+        },
+        displayPercent: true,
+        direction: config.direction,
+        gradientDirection: config.direction,
+        height: element.offsetHeight - 70
+      });
+    }
+    graph.draw();
 
     // element.innerHTML = "Hello World"
     doneRendering()
